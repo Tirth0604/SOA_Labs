@@ -1,0 +1,49 @@
+services:
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    # Internal to docker network, no ports exposed externally
+
+  user-service:
+    build: ./user-service
+    container_name: user-service
+    environment:
+      PORT: 3001
+      MONGO_URI: mongodb://mongodb:27017/user_db
+    depends_on:
+      - mongodb
+
+  product-service:
+    build: ./product-service
+    container_name: product-service
+    environment:
+      PORT: 3002
+      MONGO_URI: mongodb://mongodb:27017/product_db
+    depends_on:
+      - mongodb
+
+  order-service:
+    build: ./order-service
+    container_name: order-service
+    environment:
+      PORT: 3003
+      MONGO_URI: mongodb://mongodb:27017/order_db
+      USER_SERVICE_URL: http://user-service:3001
+      PRODUCT_SERVICE_URL: http://product-service:3002
+    depends_on:
+      - mongodb
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      PORT: 8080
+      USER_SERVICE_URL: http://user-service:3001
+      PRODUCT_SERVICE_URL: http://product-service:3002
+      ORDER_SERVICE_URL: http://order-service:3003
+    depends_on:
+      - user-service
+      - product-service
+      - order-service
