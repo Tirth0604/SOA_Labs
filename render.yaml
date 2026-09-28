@@ -1,0 +1,59 @@
+services:
+  - type: web
+    name: user-service-lab7
+    env: docker
+    rootDir: 202512038_api_lab7/user-service
+    plan: free
+    envVars:
+      - key: MONGO_URI
+        sync: false
+
+  - type: web
+    name: product-service-lab7
+    env: docker
+    rootDir: 202512038_api_lab7/product-service
+    plan: free
+    envVars:
+      - key: MONGO_URI
+        sync: false
+
+  - type: web
+    name: order-service-lab7
+    env: docker
+    rootDir: 202512038_api_lab7/order-service
+    plan: free
+    envVars:
+      - key: MONGO_URI
+        sync: false
+      - key: USER_SERVICE_URL
+        fromService:
+          type: web
+          name: user-service-lab7
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: PRODUCT_SERVICE_URL
+        fromService:
+          type: web
+          name: product-service-lab7
+          envVarKey: RENDER_EXTERNAL_URL
+
+  - type: web
+    name: api-gateway-lab7
+    env: docker
+    rootDir: 202512038_api_lab7/api-gateway
+    plan: free
+    envVars:
+      - key: USER_SERVICE_URL
+        fromService:
+          type: web
+          name: user-service-lab7
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: PRODUCT_SERVICE_URL
+        fromService:
+          type: web
+          name: product-service-lab7
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: ORDER_SERVICE_URL
+        fromService:
+          type: web
+          name: order-service-lab7
+          envVarKey: RENDER_EXTERNAL_URL
